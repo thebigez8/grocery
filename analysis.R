@@ -81,8 +81,6 @@ dat <- "prices.csv" %>%
     timepoint = factor(1 + (Date == "1/12/2019"))
   ) %>%
   filter(!(Item == "Blueberries" & units == "oz")) %>%
-  filter(!(Item == "Ice Cream" & units == "quart")) %>%
-  filter(!(Item == "OJ" & units == "gallon")) %>%
   group_by(Item) %>%
   do(calc.unit(.)) %>%
   ungroup() %>%
