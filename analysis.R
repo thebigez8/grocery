@@ -80,7 +80,6 @@ dat <- "prices.csv" %>%
     ) * if_else(Store == "Target", 0.95, 0.98),
     timepoint = factor(1 + (Date == "1/12/2019"))
   ) %>%
-  filter(!(Item == "Blueberries" & units == "oz")) %>%
   group_by(Item) %>%
   do(calc.unit(.)) %>%
   ungroup() %>%
