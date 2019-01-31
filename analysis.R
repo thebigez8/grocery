@@ -95,7 +95,8 @@ dat <- "prices.csv" %>%
   mutate(
     PPM = PPU*wts,
     Store = factor(Store, levels = c("Aldi", "Costco", "Target", "Kwik Trip",
-                                     "Walmart", "Hy-Vee", "Cub", "Trader Joe's"))
+                                     "Walmart", "Hy-Vee", "Cub", "Trader Joe's")),
+    seasonal = +(Item == "Strawberries" & timepoint == "2")
   )
 
 #### TIMEPOINT 1 ####
@@ -133,3 +134,80 @@ sens <- names(freqs) %>%
 
 options(show.signif.stars = FALSE)
 capture.output(arsenal::verbatim(summary(ppm.lm)), file = "results.md")
+
+
+
+
+
+
+
+#### BOTH TIMEPOINTS ####
+avg.prices <- dat %>%
+  group_by(Item, Store) %>%
+  summarize(PPM = mean(PPM)) %>%
+  group_by(Item) %>%
+  summarize(PPM = mean(PPM)) %>%
+  ungroup() %>%
+  arrange(PPM)
+p <- ggplot(dat, aes(x = factor(Item, levels = avg.prices$Item), y = PPM, color = Store)) +
+  facet_wrap(~ timepoint) +
+  geom_point() +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.25, size = 7)) +
+  ylab("Price per Month (USD)") + xlab("")
+print(p)
+ggsave("price_per_month2.png", p, width = 9, height = 5)
+
+comp <- dat %>%
+  select(Store, timepoint, PPU, Item) %>%
+  spread(timepoint, PPU) %>%
+  filter(!is.na(`1`) & !is.na(`2`)) %>%
+  droplevels() %>%
+  mutate(
+    av = (`1` + `2`)/2,
+    dif = `2` - `1`
+  ) %>%
+  arrange(-abs(dif))
+ggplot(comp, aes(x = av, y = dif, color = Item)) +
+  facet_wrap(~ Store) +
+  geom_point()
+
+summary(ppm.lmer <- lmer(log(PPM) ~ Store + (1 | Item) + (1 | seasonal),
+                         data = dat))
+plot(ppm.lmer) # the not log-y version was a fan! THis is much better
+ppm.lmer %>%
+  summary() %>%
+  coef() %>%
+  as.data.frame() %>%
+  rownames_to_column("term") %>%
+  filter(term != "(Intercept)") %>%
+  arrange(Estimate)
+
+#### SENSITIVITY ANALYSIS ####
+tmpfun <- function(x)
+{
+  seas <- any(dat$seasonal[dat$Item != x])
+  tmp <- arsenal::formulize("log(PPM)", c("Store", "(1 | Item)", if(seas) "(1 | seasonal)")) %>%
+    lmer(data = dat, subset = Item != x) %>%
+    summary() %>%
+    coef() %>%
+    as.data.frame() %>%
+    rownames_to_column("term") %>%
+    (function(x) set_names(x$Estimate, x$term))
+
+  stopifnot(all(tmp > 0))
+  tmp %>%
+    "["(-1) %>%
+    sort() %>%
+    names()
+}
+sens <- names(freqs) %>%
+  sapply(tmpfun) %>%
+  t() %>%
+  as.data.frame() %>%
+  lapply(table)
+
+
+options(show.signif.stars = FALSE)
+capture.output(arsenal::verbatim(summary(ppm.lmer)), file = "results2.md")
+
