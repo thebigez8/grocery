@@ -3,62 +3,70 @@ library(arsenal)
 library(lme4)
 library(lmerTest)
 # how many times per month do we buy this item
-freqs <- c(
-  "Apples (Fuji)" = 1,
-  "Apples (Honeycrisp)" = 1,
-  "Applesauce"    = 1,
-  "Bananas"       = 2,
-  "Beef (80%)"    = 3,
-  "Black Beans"   = 1,
-  "Blueberries"   = 1,
-  "Bread"         = 2,
-  "Broccoli (frozen)" = 1,
-  "Butter"        = 2,
-  "Cheese"        = 4,
-  "Chicken"       = 2,
-  "Chicken Strips"= 2,
-  "Chocolate Chips" = 1,
-  "Clementines"   = 1,
-  "Crackers"      = 2,
-  "Cucumber"      = 2,
-  "Deli Ham"      = 1,
-  "Deli Turkey"   = 1,
-  "Eggs"          = 4,
-  "Flour"         = 1/12,
-  "Green Pepper"  = 1,
-  "Ice Cream"     = 2,
-  "Jelly"         = 0.5,
-  "Ketchup"       = 0.25,
-  "Lettuce"       = 1,
-  "M&C (Annie's)" = 6,
-  "Milk (2%)"     = 2,
-  "OJ"            = 0.5,
-  "Olive Oil"     = 1/6,
-  "Peanut Butter" = 1,
-  "Potato Chips"  = 2,
-  "Red Sauce"     = 2,
-  "Salsa"         = 0.25,
-  "SBR's BBQ Sauce" = 0.25,
-  "Spaghetti"     = 4,
-  "Spinach"       = 2,
-  "Strawberries"  = 2,
-  "Sugar"         = 1/12,
-  "Taco Seasoning" = 2,
-  "Tator Tots"    = 3,
-  "Tomato Soup"   = 0.25,
-  "Tortilla Chips" = 0.25,
-  "Tortillas"     = 1,
-  "White Rice"    = 0.25
+f <- function(freq, num, units) list(freq = freq, Ref = list(num_units = num, units = units))
+freqs <- list(
+  "Apples (Fuji)" = f(1, 1, "lb"),
+  "Apples (Honeycrisp)" = f(1, 1, "lb"),
+  "Applesauce"    = f(1, 46, "oz"),
+  "Bananas"       = f(2, 1, "lb"),
+  "Beef (80%)"    = f(3, 1, "lb"),
+  "Black Beans"   = f(1, 15, "oz"),
+  "Blueberries"   = f(1, 1, "pint"),
+  "Bread"         = f(2, 20, "oz"),
+  "Broccoli (frozen)" = f(1, 12, "oz"),
+  "Butter"        = f(2, 1, "lb"),
+  "Cheese"        = f(4, 8, "oz"),
+  "Chicken"       = f(2, 1, "lb"),
+  "Chicken Strips"= f(2, 25, "oz"),
+  "Chocolate Chips" = f(1, 12, "oz"),
+  "Clementines"   = f(1, 3, "lb"),
+  "Crackers"      = f(2, 13.7, "oz"),
+  "Cucumber"      = f(2, 1, "cuke"),
+  "Deli Ham"      = f(1, 16, "oz"),
+  "Deli Turkey"   = f(1, 16, "oz"),
+  "Eggs"          = f(4, 12, "eggs"),
+  "Flour"         = f(1/12, 5, "lb"),
+  "Green Pepper"  = f(1, 1, "peppers"),
+  "Ice Cream"     = f(2, 48, "floz"),
+  "Jelly"         = f(0.5, 17.5, "oz"),
+  "Ketchup"       = f(0.25, 19.5, "oz"),
+  "Lettuce"       = f(1, 6, "oz"),
+  "M&C (Annie's)" = f(6, 6, "oz"),
+  "Milk (2%)"     = f(2, 1, "gal"),
+  "OJ"            = f(0.5, 59, "floz"),
+  "Olive Oil"     = f(1/6, 16.9, "floz"),
+  "Peanut Butter" = f(1, 16, "oz"),
+  "Potato Chips"  = f(2, 8, "oz"),
+  "Red Sauce"     = f(2, 15, "oz"),
+  "Salsa"         = f(0.25, 12, "oz"),
+  "SBR's BBQ Sauce" = f(0.25, 28, "oz"),
+  "Spaghetti"     = f(4, 16, "oz"),
+  "Spinach"       = f(2, 6, "oz"),
+  "Strawberries"  = f(2, 16, "oz"),
+  "Sugar"         = f(1/12, 4, "lb"),
+  "Taco Seasoning" = f(2, 1, "packet"),
+  "Tator Tots"    = f(3, 32, "oz"),
+  "Tomato Soup"   = f(0.25, 10.75, "oz"),
+  "Tortilla Chips" = f(0.25, 12, "oz"),
+  "Tortillas"     = f(1, 14, "oz"),
+  "White Rice"    = f(0.25, 2, "lb")
 )
 
 calc.unit <- function(x)
 {
-  if(length(unique(x$units)) != 1)
+  frq <- freqs[[x$Item[1]]]
+  if(!all(x$units == frq$Ref$units) ||
+     !(frq$Ref$num_units %in% x$num_units))
   {
     print(x)
     stop("Bad units")
   }
-  mutate(x, PPU = Price_after_sale * min(num_units) / num_units)
+  mutate(
+    x,
+    PPU = Price_after_sale * frq$Ref$num_units / num_units,
+    wts = frq$freq,
+    Ref = paste(frq$Ref$num_units, frq$Ref$units)
+  )
 }
 
 dat <- "prices.csv" %>%
@@ -85,14 +93,12 @@ dat <- "prices.csv" %>%
   do(calc.unit(.)) %>%
   ungroup() %>%
   mutate(
-    wts = freqs[Item],
     PPM = PPU*wts,
-    Store = factor(Store, levels = c("Aldi", "Target", "Costco", "Kwik Trip",
+    Store = factor(Store, levels = c("Aldi", "Costco", "Target", "Kwik Trip",
                                      "Walmart", "Hy-Vee", "Cub", "Trader Joe's"))
   )
 
-p <- ggplot(dat, aes(x = Item, y = PPM, color = Store)) +
-  facet_wrap(~ timepoint) +
+p <- ggplot(filter(dat, timepoint == 1), aes(x = Item, y = PPM, color = Store)) +
   geom_point() +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
@@ -103,8 +109,7 @@ ggsave("price_per_month.png", p, width = 5, height = 4)
 # summary(ppu.lm <- lm(PPU ~ Store + Item, weights = wts, data = dat, na.action = na.exclude,
 #                      subset = Item != "Olive Oil"))
 # dat$pred.pu <- fitted(ppu.lm)
-summary(ppm.lm <- lm(PPM ~ Store + Item, data = dat, na.action = na.exclude))
-dat$pred.pm <- fitted(ppm.lm)
+summary(ppm.lm <- lm(PPM ~ Store + Item, data = dat, subset = timepoint == 1))
 
 # ppu.lm %>% summary %>% coef() %>% head(5)
 ppm.lm %>% summary %>% coef() %>% head(5)
