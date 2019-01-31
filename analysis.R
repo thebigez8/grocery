@@ -98,6 +98,8 @@ dat <- "prices.csv" %>%
                                      "Walmart", "Hy-Vee", "Cub", "Trader Joe's"))
   )
 
+#### TIMEPOINT 1 ####
+
 p <- ggplot(filter(dat, timepoint == 1), aes(x = Item, y = PPM, color = Store)) +
   geom_point() +
   theme_classic() +
@@ -106,19 +108,14 @@ p <- ggplot(filter(dat, timepoint == 1), aes(x = Item, y = PPM, color = Store)) 
 print(p)
 ggsave("price_per_month.png", p, width = 5, height = 4)
 
-# summary(ppu.lm <- lm(PPU ~ Store + Item, weights = wts, data = dat, na.action = na.exclude,
-#                      subset = Item != "Olive Oil"))
-# dat$pred.pu <- fitted(ppu.lm)
-summary(ppm.lm <- lm(PPM ~ Store + Item, data = dat, subset = timepoint == 1))
-
-# ppu.lm %>% summary %>% coef() %>% head(5)
+summary(ppm.lm <- lm(log(PPM) ~ Store + Item, data = dat, subset = timepoint == 1))
 ppm.lm %>% summary %>% coef() %>% head(5)
 
 
-########################### SENSITIVITY ANALYSIS #########
+#### SENSITIVITY ANALYSIS ####
 tmpfun <- function(x)
 {
-  tmp <- lm(PPM ~ Store + Item, data = dat, na.action = na.exclude, subset = Item != x) %>%
+  tmp <- lm(log(PPM) ~ Store + Item, data = dat, subset = timepoint == 1 & Item != x) %>%
     coef() %>%
     head(5)
   stopifnot(all(tmp > 0))

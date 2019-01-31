@@ -1,50 +1,50 @@
 ```
 
 Call:
-lm(formula = PPM ~ Store + Item, data = dat, na.action = na.exclude)
+lm(formula = log(PPM) ~ Store + Item, data = dat, subset = timepoint == 
+    1)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--3.1683 -0.4355 -0.0108  0.4563  2.6504 
+     Min       1Q   Median       3Q      Max 
+-0.60410 -0.09710  0.01953  0.10360  0.62894 
 
 Coefficients:
                    Estimate Std. Error t value Pr(>|t|)
-(Intercept)          1.0176     0.4846   2.100  0.03863
-StoreTarget          0.5361     0.2807   1.910  0.05948
-StoreCostco          0.6735     0.3549   1.898  0.06103
-StoreWalmart         0.8442     0.2739   3.082  0.00275
-StoreHy-Vee          1.1057     0.2774   3.986  0.00014
-ItemApplesauce       0.3440     0.6780   0.507  0.61316
-ItemBananas         -0.5969     0.6365  -0.938  0.35101
-ItemBeef (80%)       9.1446     0.6780  13.487  < 2e-16
-ItemBread            1.6159     0.6365   2.539  0.01291
-ItemButter           4.0482     0.6365   6.360 9.07e-09
-ItemCheese           5.6469     0.6365   8.871 8.24e-14
-ItemChicken          3.9273     0.6768   5.803 1.03e-07
-ItemChicken Strips   9.6148     0.6768  14.207  < 2e-16
-ItemCrackers         2.7147     0.6365   4.265 5.07e-05
-ItemCucumber        -0.1202     0.6780  -0.177  0.85968
-ItemDeli Turkey      3.1114     0.6365   4.888 4.61e-06
-ItemEggs             1.7036     0.6365   2.676  0.00889
-ItemFlour           -1.4994     0.6780  -2.211  0.02963
-ItemIce Cream        3.8629     0.6780   5.697 1.63e-07
-ItemLettuce          0.1422     0.6780   0.210  0.83434
-ItemM&C (Annie's)    7.6339     0.6780  11.259  < 2e-16
-ItemMilk (2%)        3.2658     0.6365   5.131 1.73e-06
-ItemOJ               0.7061     0.6365   1.109  0.27038
-ItemOlive Oil       -0.7435     0.7399  -1.005  0.31779
-ItemPotato Chips     1.5043     0.6780   2.219  0.02912
-ItemRed Sauce        0.5973     0.6780   0.881  0.38082
-ItemSpaghetti        0.1664     0.6780   0.245  0.80669
-ItemSpinach          2.2627     0.6780   3.337  0.00125
-ItemStrawberries     2.8596     0.6365   4.492 2.15e-05
-ItemSugar           -1.4845     0.6780  -2.189  0.03124
-ItemTator Tots       3.7596     0.6780   5.545 3.11e-07
+(Intercept)         0.30982    0.10985   2.820 0.005968
+StoreCostco         0.17270    0.08311   2.078 0.040725
+StoreTarget         0.18305    0.06426   2.849 0.005503
+StoreWalmart        0.25138    0.06270   4.009 0.000130
+StoreHy-Vee         0.25706    0.06350   4.049 0.000113
+ItemApplesauce      0.19637    0.15330   1.281 0.203686
+ItemBananas        -0.45149    0.14386  -3.138 0.002335
+ItemBeef (80%)      1.87884    0.15330  12.256  < 2e-16
+ItemBread           0.68821    0.14386   4.784 7.16e-06
+ItemButter          1.25301    0.14386   8.710 2.09e-13
+ItemCheese          1.48193    0.14386  10.301  < 2e-16
+ItemChicken         1.23330    0.15296   8.063 4.23e-12
+ItemChicken Strips  1.94020    0.15296  12.685  < 2e-16
+ItemCrackers        0.97336    0.14386   6.766 1.59e-09
+ItemCucumber       -0.09567    0.15330  -0.624 0.534265
+ItemDeli Turkey     0.94736    0.15330   6.180 2.14e-08
+ItemEggs            0.93126    0.14386   6.473 5.88e-09
+ItemFlour          -2.46431    0.15330 -16.075  < 2e-16
+ItemIce Cream       1.21841    0.15330   7.948 7.21e-12
+ItemLettuce         0.09288    0.15330   0.606 0.546209
+ItemM&C (Annie's)   1.36972    0.16728   8.188 2.37e-12
+ItemMilk (2%)       1.09931    0.14386   7.642 2.96e-11
+ItemOJ             -0.33681    0.14386  -2.341 0.021563
+ItemOlive Oil      -0.78876    0.16728  -4.715 9.37e-06
+ItemPotato Chips    0.65844    0.15330   4.295 4.62e-05
+ItemRed Sauce       0.28880    0.15330   1.884 0.063003
+ItemSpaghetti       0.79905    0.15330   5.212 1.29e-06
+ItemSpinach         0.75528    0.15330   4.927 4.07e-06
+ItemStrawberries    0.95718    0.14386   6.654 2.64e-09
+ItemSugar          -2.35079    0.15330 -15.335  < 2e-16
+ItemTator Tots      1.19444    0.15330   7.792 1.48e-11
 
-Residual standard error: 1.006 on 87 degrees of freedom
-  (9 observations deleted due to missingness)
-Multiple R-squared:  0.9164,	Adjusted R-squared:  0.8876 
-F-statistic: 31.78 on 30 and 87 DF,  p-value: < 2.2e-16
+Residual standard error: 0.2275 on 85 degrees of freedom
+Multiple R-squared:  0.9659,	Adjusted R-squared:  0.9539 
+F-statistic: 80.32 on 30 and 85 DF,  p-value: < 2.2e-16
 
 
 ```
