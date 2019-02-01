@@ -126,6 +126,7 @@ tmpfun <- function(x)
     names()
 }
 sens <- names(freqs) %>%
+  intersect(dat$Item[dat$timepoint == 1]) %>%
   sapply(tmpfun) %>%
   t() %>%
   as.data.frame() %>%
