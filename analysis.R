@@ -94,8 +94,8 @@ dat <- "prices.csv" %>%
   ungroup() %>%
   mutate(
     PPM = PPU*wts,
-    Store = factor(Store, levels = c("Aldi", "Costco", "Target", "Kwik Trip",
-                                     "Walmart", "Hy-Vee", "Cub", "Trader Joe's")),
+    Store = factor(Store, levels = c("Aldi", "Costco", "Target", "Walmart", "Hy-Vee",
+                                     "Cub", "Trader Joe's", "Kwik Trip")),
     seasonal = +(Item == "Strawberries" & timepoint == "2")
   )
 
@@ -175,7 +175,7 @@ ggplot(comp, aes(x = av, y = dif, color = Item)) +
 
 summary(ppm.lmer <- lmer(log(PPM) ~ Store + (1 | Item) + (1 | seasonal),
                          data = dat))
-plot(ppm.lmer) # the not log-y version was a fan! THis is much better
+plot(ppm.lmer)
 ppm.lmer %>%
   summary() %>%
   coef() %>%
