@@ -184,7 +184,7 @@ ppm.lmer %>%
   arrange(Estimate)
 
 #### SENSITIVITY ANALYSIS ####
-tmpfun <- function(x)
+tmpfun.lmer <- function(x)
 {
   seas <- any(dat$seasonal[dat$Item != x])
   tmp <- arsenal::formulize("log(PPM)", c("Store", "(1 | Item)", if(seas) "(1 | seasonal)")) %>%
@@ -201,8 +201,8 @@ tmpfun <- function(x)
     sort() %>%
     names()
 }
-sens <- names(freqs) %>%
-  sapply(tmpfun) %>%
+sens.lmer <- names(freqs) %>%
+  sapply(tmpfun.lmer) %>%
   t() %>%
   as.data.frame() %>%
   lapply(table)
