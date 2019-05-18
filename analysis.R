@@ -173,6 +173,9 @@ ggplot(comp, aes(x = av, y = dif, color = Item)) +
   facet_wrap(~ Store) +
   geom_point()
 
+# We could include the random interaction of item and store, but this suggests that we don't
+interaction.plot(dat$Item, dat$Store, log(dat$PPM))
+
 summary(ppm.lmer <- lmer(log(PPM) ~ Store + (1 | Item) + (1 | seasonal),
                          data = dat))
 # summary(ppm.lm2 <- lm(log(PPM) ~ Store + Item + seasonal, data = dat))
